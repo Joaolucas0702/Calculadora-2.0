@@ -76,7 +76,11 @@ def calcular_escritura(valor_imovel):
         (float('inf'), 7737.59),
     ]
 
-    for limite, custo in tabela_escritura:
+    custo = 0.0  # Valor padrão caso não encontre na tabela
+    for limite, valor in tabela_escritura:
         if valor_imovel <= limite:
-            return round(costo, 2)
+            custo = valor
+            break
+            
+    return round(custo, 2)
     return 0.0
