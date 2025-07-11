@@ -56,6 +56,7 @@ def main():
             ["Goiânia", "Trindade", "Aparecida de Goiânia", "Senador Canedo"]
         )
         
+        renda_bruta = 0.0
         if cidade == "Aparecida de Goiânia":
             renda_bruta = st.number_input(
                 "Renda bruta mensal (R$)", 
@@ -85,38 +86,39 @@ def main():
             
             # ITBI
             st.markdown(f"""
-            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**
-            - *O que é*: Imposto municipal sobre a transação
-            - *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre R$ {valor_imovel - valor_financiado:,.2f}
-            - *Valor*: {formatar_br(itbi)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**  
+            *O que é*: Imposto municipal sobre a transação  
+            *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre {formatar_br(valor_imovel - valor_financiado)}  
+            *Valor*: {formatar_br(itbi)}
+            """)
             
             # Lavratura
-            st.markdown(f"""
-            **📌 Lavratura de Contrato**
-            - *O que é*: Custos cartoriais para elaboração do contrato
-            - *Cálculo*: {{
+            calculos_lavratura = {
                 'SBPE': '0.3% do financiado (mín. R$ 1.000)',
                 'MCMV': '0.25% do financiado (mín. R$ 800)',
                 'Pro Cotista': '0.35% do financiado (mín. R$ 1.200)'
-            }}[tipo_financiamento]
-            - *Valor*: {formatar_br(lavratura)}
+            }
+            st.markdown(f"""
+            **📌 Lavratura de Contrato**  
+            *O que é*: Custos cartoriais para elaboração do contrato  
+            *Cálculo*: {calculos_lavratura[tipo_financiamento]}  
+            *Valor*: {formatar_br(lavratura)}
             """)
             
             # Registro
             st.markdown(f"""
-            **📌 Registro no Cartório**
-            - *O que é*: Taxa para registrar a transação no RGI
-            - *Base*: Maior valor entre imóvel e financiado (R$ {max(valor_imovel, valor_financiado):,.2f})
-            - *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}
-            - *Valor*: {formatar_br(registro)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            **📌 Registro no Cartório**  
+            *O que é*: Taxa para registrar a transação no RGI  
+            *Base*: Maior valor entre imóvel e financiado ({formatar_br(max(valor_imovel, valor_financiado))})  
+            *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}  
+            *Valor*: {formatar_br(registro)}
+            """)
             
             # Seguro
             st.markdown(f"""
-            **📌 Seguro**
-            - *O que é*: Seguro obrigatório do financiamento
-            - *Valor*: {formatar_br(seguro)}
+            **📌 Seguro**  
+            *O que é*: Seguro obrigatório do financiamento  
+            *Valor*: {formatar_br(seguro)}
             """)
             
             st.divider()
@@ -142,33 +144,34 @@ def main():
             
             # Escritura
             st.markdown(f"""
-            **📌 Escritura Pública**
-            - *O que é*: Documento que formaliza a compra no tabelionato
-            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
-            - *Valor*: {formatar_br(escritura)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            **📌 Escritura Pública**  
+            *O que é*: Documento que formaliza a compra no tabelionato  
+            *Base*: Valor do imóvel ({formatar_br(valor_imovel)})  
+            *Valor*: {formatar_br(escritura)}
+            """)
             
             # ITBI
-            st.markdown(f"""
-            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**
-            - *O que é*: Imposto municipal sobre a transação
-            - *Alíquota*: {{
+            aliquotas = {
                 'Goiânia': '2%',
                 'Trindade': '2%',
                 'Aparecida de Goiânia': '2.5%',
                 'Senador Canedo': '2.5%'
-            }}[cidade]
-            - *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre R$ {valor_imovel:,.2f}
-            - *Valor*: {formatar_br(itbi)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            }
+            st.markdown(f"""
+            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**  
+            *O que é*: Imposto municipal sobre a transação  
+            *Alíquota*: {aliquotas[cidade]}  
+            *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre {formatar_br(valor_imovel)}  
+            *Valor*: {formatar_br(itbi)}
+            """)
             
             # Registro
             st.markdown(f"""
-            **📌 Registro no Cartório**
-            - *O que é*: Taxa para registrar a propriedade no RGI
-            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
-            - *Valor*: {formatar_br(registro)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            **📌 Registro no Cartório**  
+            *O que é*: Taxa para registrar a propriedade no RGI  
+            *Base*: Valor do imóvel ({formatar_br(valor_imovel)})  
+            *Valor*: {formatar_br(registro)}
+            """)
             
             st.divider()
             st.success(f"**💵 TOTAL DE DESPESAS:** {formatar_br(total)}")
@@ -211,31 +214,32 @@ def main():
             st.subheader("📝 Detalhes das Despesas")
             
             # Lavratura
-            st.markdown(f"""
-            **📌 Lavratura de Contrato**
-            - *O que é*: Custos cartoriais para elaboração do contrato
-            - *Cálculo*: {{
+            calculos_lavratura = {
                 'SBPE': '0.3% do empréstimo (mín. R$ 1.000)',
                 'MCMV': '0.25% do empréstimo (mín. R$ 800)',
                 'Pro Cotista': '0.35% do empréstimo (mín. R$ 1.200)'
-            }}[tipo_financiamento]
-            - *Valor*: {formatar_br(lavratura)}
+            }
+            st.markdown(f"""
+            **📌 Lavratura de Contrato**  
+            *O que é*: Custos cartoriais para elaboração do contrato  
+            *Cálculo*: {calculos_lavratura[tipo_financiamento]}  
+            *Valor*: {formatar_br(lavratura)}
             """)
             
             # Registro
             st.markdown(f"""
-            **📌 Registro da Garantia**
-            - *O que é*: Taxa para registrar o financiamento no RGI
-            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
-            - *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}
-            - *Valor*: {formatar_br(registro)}
-            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            **📌 Registro da Garantia**  
+            *O que é*: Taxa para registrar o financiamento no RGI  
+            *Base*: Valor do imóvel ({formatar_br(valor_imovel)})  
+            *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}  
+            *Valor*: {formatar_br(registro)}
+            """)
             
             # Seguro
             st.markdown(f"""
-            **📌 Seguro**
-            - *O que é*: Seguro obrigatório da operação
-            - *Valor*: {formatar_br(seguro)}
+            **📌 Seguro**  
+            *O que é*: Seguro obrigatório da operação  
+            *Valor*: {formatar_br(seguro)}
             """)
             
             st.divider()
