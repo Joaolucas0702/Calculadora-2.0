@@ -20,7 +20,7 @@ def main():
         ["Compra com financiamento", "Compra à vista", "Empréstimo com imóvel de garantia"]
     )
 
-    # Campos comuns
+    # Campo comum - Valor do Imóvel
     valor_imovel = st.number_input(
         "Valor total do imóvel (R$)", 
         min_value=0.0,
@@ -82,12 +82,45 @@ def main():
             
             st.divider()
             st.subheader("📝 Detalhes das Despesas")
-            st.write(f"- **ITBI ({cidade}):** {formatar_br(itbi)}")
-            st.write(f"- **Lavratura de Contrato:** {formatar_br(lavratura)}")
-            st.write(f"- **Registro:** {formatar_br(registro)}")
-            st.write(f"- **Seguro:** {formatar_br(seguro)}")
+            
+            # ITBI
+            st.markdown(f"""
+            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**
+            - *O que é*: Imposto municipal sobre a transação
+            - *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre R$ {valor_imovel - valor_financiado:,.2f}
+            - *Valor*: {formatar_br(itbi)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
+            # Lavratura
+            st.markdown(f"""
+            **📌 Lavratura de Contrato**
+            - *O que é*: Custos cartoriais para elaboração do contrato
+            - *Cálculo*: {{
+                'SBPE': '0.3% do financiado (mín. R$ 1.000)',
+                'MCMV': '0.25% do financiado (mín. R$ 800)',
+                'Pro Cotista': '0.35% do financiado (mín. R$ 1.200)'
+            }}[tipo_financiamento]
+            - *Valor*: {formatar_br(lavratura)}
+            """)
+            
+            # Registro
+            st.markdown(f"""
+            **📌 Registro no Cartório**
+            - *O que é*: Taxa para registrar a transação no RGI
+            - *Base*: Maior valor entre imóvel e financiado (R$ {max(valor_imovel, valor_financiado):,.2f})
+            - *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}
+            - *Valor*: {formatar_br(registro)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
+            # Seguro
+            st.markdown(f"""
+            **📌 Seguro**
+            - *O que é*: Seguro obrigatório do financiamento
+            - *Valor*: {formatar_br(seguro)}
+            """)
+            
             st.divider()
-            st.success(f"**TOTAL DE DESPESAS:** {formatar_br(total)}")
+            st.success(f"**💵 TOTAL DE DESPESAS:** {formatar_br(total)}")
 
     elif tipo_operacao == "Compra à vista":
         cidade = st.selectbox(
@@ -97,7 +130,7 @@ def main():
         
         if st.button("🟢 Calcular Despesas", type="primary"):
             escritura = calcular_escritura(valor_imovel)
-            registro = calcular_registro_cartorio(valor_imovel, False)  # Sem desconto
+            registro = calcular_registro_cartorio(valor_imovel, False)
             itbi = calcular_itbi(cidade, valor_imovel)
             total = itbi + escritura + registro
             
@@ -106,11 +139,39 @@ def main():
             
             st.divider()
             st.subheader("📝 Detalhes das Despesas")
-            st.write(f"- **Escritura:** {formatar_br(escritura)}")
-            st.write(f"- **ITBI ({cidade}):** {formatar_br(itbi)}")
-            st.write(f"- **Registro:** {formatar_br(registro)}")
+            
+            # Escritura
+            st.markdown(f"""
+            **📌 Escritura Pública**
+            - *O que é*: Documento que formaliza a compra no tabelionato
+            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
+            - *Valor*: {formatar_br(escritura)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
+            # ITBI
+            st.markdown(f"""
+            **📌 ITBI (Imposto sobre Transmissão de Bens Imóveis)**
+            - *O que é*: Imposto municipal sobre a transação
+            - *Alíquota*: {{
+                'Goiânia': '2%',
+                'Trindade': '2%',
+                'Aparecida de Goiânia': '2.5%',
+                'Senador Canedo': '2.5%'
+            }}[cidade]
+            - *Cálculo*: {2.5 if cidade in ['Aparecida de Goiânia', 'Senador Canedo'] else 2}% sobre R$ {valor_imovel:,.2f}
+            - *Valor*: {formatar_br(itbi)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
+            # Registro
+            st.markdown(f"""
+            **📌 Registro no Cartório**
+            - *O que é*: Taxa para registrar a propriedade no RGI
+            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
+            - *Valor*: {formatar_br(registro)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
             st.divider()
-            st.success(f"**TOTAL DE DESPESAS:** {formatar_br(total)}")
+            st.success(f"**💵 TOTAL DE DESPESAS:** {formatar_br(total)}")
 
     elif tipo_operacao == "Empréstimo com imóvel de garantia":
         primeiro_imovel = st.checkbox("Primeiro imóvel? (50% de desconto no registro)")
@@ -148,11 +209,37 @@ def main():
             
             st.divider()
             st.subheader("📝 Detalhes das Despesas")
-            st.write(f"- **Lavratura de Contrato:** {formatar_br(lavratura)}")
-            st.write(f"- **Registro da Garantia:** {formatar_br(registro)}")
-            st.write(f"- **Seguro:** {formatar_br(seguro)}")
+            
+            # Lavratura
+            st.markdown(f"""
+            **📌 Lavratura de Contrato**
+            - *O que é*: Custos cartoriais para elaboração do contrato
+            - *Cálculo*: {{
+                'SBPE': '0.3% do empréstimo (mín. R$ 1.000)',
+                'MCMV': '0.25% do empréstimo (mín. R$ 800)',
+                'Pro Cotista': '0.35% do empréstimo (mín. R$ 1.200)'
+            }}[tipo_financiamento]
+            - *Valor*: {formatar_br(lavratura)}
+            """)
+            
+            # Registro
+            st.markdown(f"""
+            **📌 Registro da Garantia**
+            - *O que é*: Taxa para registrar o financiamento no RGI
+            - *Base*: Valor do imóvel (R$ {valor_imovel:,.2f})
+            - *Desconto*: {'Sim (50%)' if primeiro_imovel else 'Não'}
+            - *Valor*: {formatar_br(registro)}
+            """.replace(",", "X").replace(".", ",").replace("X", "."))
+            
+            # Seguro
+            st.markdown(f"""
+            **📌 Seguro**
+            - *O que é*: Seguro obrigatório da operação
+            - *Valor*: {formatar_br(seguro)}
+            """)
+            
             st.divider()
-            st.success(f"**TOTAL DE DESPESAS:** {formatar_br(total)}")
+            st.success(f"**💵 TOTAL DE DESPESAS:** {formatar_br(total)}")
 
 if __name__ == "__main__":
     main()
